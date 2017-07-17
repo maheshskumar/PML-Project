@@ -174,8 +174,77 @@ dim(training1)</code></pre>
 trainNewFinal &lt;- trainNew[,-c(1:5)]
 testNew &lt;- testing1[,colSums(is.na(testing1))==0]
 testNewFinal &lt;- testNew[,-c(1:5)]</code></pre>
-<p>modRf &lt;- train(classe ~., method=“rf”, data=trainNewFinal) modRf<span class="math inline">\(finalModel predictRf &lt;- predict(modRf, newdata=testNewFinal) confusionMatrix(predictRf, testNewFinal\)</span>classe) excerciseTest = read.csv(“~/Downloads/pml-testing.csv”) excerciseTestNew &lt;- excerciseTest[,-nzv] nas &lt;- colSums(is.na(training1))==0 excerciseTestNew1 &lt;- excerciseTestNew[,-nas] excerciseTestNewFinal &lt;- excerciseTestNew1[,-c(1:5)] predRfA &lt;- predict(modRf, excerciseTestNewFinal) print(predRfA) ```</p>
 </div>
+</div>
+<div id="model-selection" class="section level2">
+<h2>Model Selection</h2>
+<p>Considering the substantial number of predictor variables (54) and the fact that predicting with trees is better suited for non linear data I decided to start with the Random Forest model and then test with additional models if necessary.<\p>
+<pre class="r"><code>modRf &lt;- train(classe ~., method=&quot;rf&quot;, data=trainNewFinal)
+modRf$finalModel</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(x = x, y = y, mtry = param$mtry) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 27
+## 
+##         OOB estimate of  error rate: 0.21%
+## Confusion matrix:
+##      A    B    C    D    E  class.error
+## A 4183    1    0    0    1 0.0004778973
+## B    7 2839    2    0    0 0.0031601124
+## C    0    3 2564    0    0 0.0011686794
+## D    0    0   10 2402    0 0.0041459370
+## E    0    0    0    7 2699 0.0025868441</code></pre>
+<p>The above model shows that OOB (out-of-bag) error rate is 0.21%, which is very low. So the model we selected is expected to perform well in test data. I ran the model in the validation data (testNewFinal) and the model produced 100% correct results. Since the OOB error is very low and the validation data provided good results I decided not to test with other models.</p>
+</div>
+<div id="model-validation" class="section level2">
+<h2>Model Validation</h2>
+<pre class="r"><code>predictRf &lt;- predict(modRf, newdata=testNewFinal)
+confusionMatrix(predictRf, testNewFinal$classe)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1395    2    0    0    0
+##          B    0  946    2    0    0
+##          C    0    1  853    2    0
+##          D    0    0    0  801    2
+##          E    0    0    0    1  899
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.998          
+##                  95% CI : (0.9963, 0.999)
+##     No Information Rate : 0.2845         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9974         
+##  Mcnemar's Test P-Value : NA             
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   0.9968   0.9977   0.9963   0.9978
+## Specificity            0.9994   0.9995   0.9993   0.9995   0.9998
+## Pos Pred Value         0.9986   0.9979   0.9965   0.9975   0.9989
+## Neg Pred Value         1.0000   0.9992   0.9995   0.9993   0.9995
+## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
+## Detection Rate         0.2845   0.1929   0.1739   0.1633   0.1833
+## Detection Prevalence   0.2849   0.1933   0.1746   0.1637   0.1835
+## Balanced Accuracy      0.9997   0.9982   0.9985   0.9979   0.9988</code></pre>
+<p>The results show very high level of accuracy of predictions, which is consistent with the model estimated the OOB error.</p>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>Finally, I tested the model using the testing data provided. This data had no part in any model formation/definition.</p>
+<pre class="r"><code>excerciseTest = read.csv(&quot;~/Downloads/pml-testing.csv&quot;)</code></pre>
+<p>The model was then used to predict the test data set that was in the test csv file. Here are the results of that prediction.</p>
+<pre class="r"><code>predRfA &lt;- predict(modRf, excerciseTest)
+print(predRfA)</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
+<p>The above results were input in the class project quiz and the answers were 100% correct.</p>
 </div>
 
 
