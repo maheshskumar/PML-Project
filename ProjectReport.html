@@ -150,18 +150,32 @@ library(rpart)
 library(randomForest)
 excercise = read.csv(&quot;~/Downloads/pml-training.csv&quot;)</code></pre>
 </div>
-</div>
-<div id="split-data-into-training-and-validation-sets" class="section level1">
-<h1>2. Split data into Training and Validation sets</h1>
+<div id="split-data-into-training-and-validation-sets" class="section level3">
+<h3>2. Split data into Training and Validation sets</h3>
 <pre class="r"><code>inTrain = createDataPartition(excercise$classe,p=3/4)[[1]]
 training = excercise[inTrain,]
 testing = excercise[-inTrain,]</code></pre>
 </div>
-<div id="review-training-data-for-the-following" class="section level1">
-<h1>3. Review Training Data for the following:</h1>
+<div id="review-training-data-for-the-following" class="section level3">
+<h3>3. Review Training Data for the following:</h3>
+<ol style="list-style-type: decimal">
+<li>Identify variables to reduce model size (near zero vars). Use the nearZeroVar function to identify variables not useful in prediction.</li>
+<li>Detect anomalies in the data (missing data etc.). Examples marked by orange ovals in the diagram below.</li>
+<li>Identify data that should not be in the prediction (e.g. Serial Number etc.). Examples are marked by a a red oval in diagram.</li>
+</ol>
+<pre class="r"><code>nzv &lt;- nearZeroVar(training)
+training1 &lt;- training[,-nzv]
+testing1 &lt;- testing[,-nzv]
+dim(training1)</code></pre>
 <pre><code>## [1] 14718   103</code></pre>
+<pre class="r"><code>dim(testing1)</code></pre>
 <pre><code>## [1] 4904  103</code></pre>
+<pre class="r"><code>trainNew &lt;- training1[,colSums(is.na(training1))==0]
+trainNewFinal &lt;- trainNew[,-c(1:5)]
+testNew &lt;- testing1[,colSums(is.na(testing1))==0]
+testNewFinal &lt;- testNew[,-c(1:5)]</code></pre>
 <p>modRf &lt;- train(classe ~., method=“rf”, data=trainNewFinal) modRf<span class="math inline">\(finalModel predictRf &lt;- predict(modRf, newdata=testNewFinal) confusionMatrix(predictRf, testNewFinal\)</span>classe) excerciseTest = read.csv(“~/Downloads/pml-testing.csv”) excerciseTestNew &lt;- excerciseTest[,-nzv] nas &lt;- colSums(is.na(training1))==0 excerciseTestNew1 &lt;- excerciseTestNew[,-nas] excerciseTestNewFinal &lt;- excerciseTestNew1[,-c(1:5)] predRfA &lt;- predict(modRf, excerciseTestNewFinal) print(predRfA) ```</p>
+</div>
 </div>
 
 
